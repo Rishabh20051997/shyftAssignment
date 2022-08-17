@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, StyleSheet, Text } from 'react-native'
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen'
-import { colors } from '../config/Colors'
+import { colors } from '../common/Colors'
 
 
 interface State {

@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect } from 'react'
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native'
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen'
-
 import { get, map } from 'lodash'
+
 import { isTablet, MAIN_STACK_KEYS, TAB_KEYS } from '../common/Constant'
 import { navigationDataStore } from '../stores'
-import { colors } from '../config/Colors'
+import { colors } from '../common/Colors'
 import { icons } from '../common/Icons'
 
 

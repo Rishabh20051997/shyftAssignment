@@ -33,8 +33,8 @@ const rootStack = () => {
 
 
 const routerGenerator = (cb) => {
-  isUserSignedIn().then(async (isLoggedIn) => {
-    const initialRoute = isLoggedIn ? STACK_NAMES.LOGIN_STACK : STACK_NAMES.HOME_STACK
+  isUserSignedIn().then((isLoggedIn) => {
+    const initialRoute = isLoggedIn ? STACK_NAMES.HOME_STACK : STACK_NAMES.LOGIN_STACK
     setInititalStackName(initialRoute)
     cb(rootStack)
   })
@@ -43,5 +43,5 @@ const routerGenerator = (cb) => {
 export const setRouterHandler = async () => {
   setTimeout(() => {
     routerGenerator(router => navigationDataStore.updateState(router))
-  }, 3000)
+  }, 100)
 }
