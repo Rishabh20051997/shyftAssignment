@@ -2,11 +2,15 @@ import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import { HomeScreen } from '../screens/HomeScreen'
 import { getScreenConfiguration } from '../utils/NavigationUtils'
+import { ApplyLoanScreen } from '../screens/ApplyLoanScreen'
 
 
 const homeStackScreens = {
   HomeScreen: getScreenConfiguration({
     screenName: HomeScreen
+  }),
+  ApplyLoanScreen: getScreenConfiguration({
+    screenName: ApplyLoanScreen
   })
 }
 

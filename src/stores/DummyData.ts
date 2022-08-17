@@ -28,20 +28,24 @@ export const BANK_LIST = [{
 export const LOAN_TYPE_DATA = [{
     id: 'abc',
     type: 'house',
-    name: 'Housing Loan'
+    name: 'Housing Loan',
+    interestRate: 8
 },
 {
     id: 'def',
     type: 'car',
-    name: 'Car Loan'
+    name: 'Car Loan',
+    interestRate: 7
 },
 {
     id: 'ghi',
     type: 'personal',
-    name: 'Personal Loan'
+    name: 'Personal Loan',
+    interestRate: 12
 },
 {
     id: 'jkl',
     type: 'education',
-    name: 'Education Loan'
+    name: 'Education Loan',
+    interestRate: 10
 }]

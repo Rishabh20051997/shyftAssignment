@@ -16,3 +16,20 @@ export const MAIN_STACK_KEYS = {
 }
 
 export const isTablet = () => DeviceInfo.isTablet()
+
+export enum LOAN_KEY_FIELD {
+    NAME = 'NAME',
+    EMAIL_ID = 'EMAIL_ID',
+    MOBILE_NUMBER = 'MOBILE_NUMBER',
+    HOME_ADDRESS = 'HOME_ADDRESS',
+    DURATION = 'DURATION',
+    BANK = 'BANK',
+    LOAN_TYPE = 'LOAN_TYPE',
+    AMOUNT = 'AMOUNT'
+}
+
+
+export enum FIELD_TYPE {
+    TEXT_BOX = 'TEXT_BOX',
+    PICKER = 'PICKER'
+}

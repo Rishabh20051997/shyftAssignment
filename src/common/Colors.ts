@@ -6,4 +6,5 @@ export const colors = {
     textPrimary: '#FFF',
     textSecondary: '#666666',
     textTertiary: '#999999',
+    errorColor: 'red'
 }

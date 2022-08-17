@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Image, SectionList, TouchableOpacity } from 're
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'
 import { colors } from '../common/Colors'
 import { icons } from '../common/Icons'
+import { navigateSimple } from '../services/NavigationServiceV1'
 import { homeDataStore, userDataStore } from '../stores'
 
 
@@ -10,6 +11,7 @@ interface State {
     //
 }
 interface Props {
+    navigation?: any
     //
 }
 
@@ -98,15 +100,22 @@ export class HomeScreen extends Component<Props, State> {
         </View>
     }
 
-    onApplyPressed = () => {
-        alert('Hello')
+    onApplyPressed = (item, section) => {
+        const { index } = section
+        const { id } = item
+        console.log('item item', section)
+        const { navigation } = this.props
+        navigateSimple(navigation, 'ApplyLoanScreen', {
+            bankId: index === 0 ? id : '',
+            loanTypeId: index === 1 ? id : ''
+        })
     }
 
-    renderCardItem = ({ item }) => {
+    renderCardItem = ({ item, section }) => {
         // return null
         const { icon, name } = item
         return <TouchableOpacity
-            onPress={this.onApplyPressed}
+            onPress={() => this.onApplyPressed(item, section)}
             style={styles.cardItemConatiner} >
             <View style={styles.cardItemInnerConatiner}>
                 {icon ? <Image
