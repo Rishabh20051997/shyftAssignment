@@ -1,5 +1,5 @@
 import { action, makeObservable, observable } from 'mobx'
-import { forEach, set, find, get } from 'lodash'
+import { forEach, set, find, get, map } from 'lodash'
 import { ToastAndroid } from 'react-native'
 
 import { userDataStore } from '.'
@@ -7,11 +7,6 @@ import { BANK_LIST, LOAN_TYPE_DATA } from './DummyData'
 import { FIELD_TYPE, LOAN_KEY_FIELD } from '../common/Constant'
 import { validateRegex } from '../utils/ValidationUtils'
 
-const REGEX_VALID_EMAIL = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-const REGEX_VALID_NAME = /^[a-zA-Z\s]{2,}$/
-const REGEX_VALID_CONTACT_NUMBER = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/
-const YEARS_VALIDATION = /^[1-9]\d*(\.\d+)?$/
-const REGEX_AMOUNT = /^[0-9]*$/
 
 const FORM_DATA = [{
     key: LOAN_KEY_FIELD.BANK,
@@ -39,8 +34,7 @@ const FORM_DATA = [{
     type: FIELD_TYPE.TEXT_BOX,
     value: '',
     placeholder: 'Enter Your Name',
-    defaultValue: '',
-    validationRegex: REGEX_VALID_NAME,
+    validationRegex: 'REGEX_VALID_NAME',
     errorMessage: 'Please enter valid name',
     prefix: '',
     keyboardType: 'default',
@@ -51,8 +45,7 @@ const FORM_DATA = [{
     type: FIELD_TYPE.TEXT_BOX,
     placeholder: 'Enter Your Email Id',
     value: '',
-    defaultValue: '',
-    validationRegex: REGEX_VALID_EMAIL,
+    validationRegex: 'REGEX_VALID_EMAIL',
     errorMessage: 'Please enter valid email',
     prefix: '',
     keyboardType: 'email-address',
@@ -63,8 +56,7 @@ const FORM_DATA = [{
     type: FIELD_TYPE.TEXT_BOX,
     placeholder: 'Enter Your Mobile Number',
     value: '',
-    defaultValue: '',
-    validationRegex: REGEX_VALID_CONTACT_NUMBER,
+    validationRegex: 'REGEX_VALID_CONTACT_NUMBER',
     errorMessage: 'Please enter valid Mobile Number',
     prefix: '+91',
     keyboardType: 'number-pad',
@@ -75,7 +67,6 @@ const FORM_DATA = [{
     type: FIELD_TYPE.TEXT_BOX,
     placeholder: 'Enter Your Home Address',
     value: '',
-    defaultValue: '',
     validationRegex: '',
     errorMessage: 'Please enter valid Home Address',
     prefix: '',
@@ -87,7 +78,7 @@ const FORM_DATA = [{
     type: FIELD_TYPE.TEXT_BOX,
     placeholder: 'Enter Duration in Years',
     value: '',
-    validationRegex: YEARS_VALIDATION,
+    validationRegex: 'YEARS_VALIDATION',
     errorMessage: 'Please enter valid Duration',
     prefix: '',
     keyboardType: 'numeric',
@@ -98,7 +89,7 @@ const FORM_DATA = [{
     type: FIELD_TYPE.TEXT_BOX,
     placeholder: 'Enter Amount in Rupees (Numeric)',
     value: '',
-    validationRegex: REGEX_AMOUNT,
+    validationRegex: 'YEARS_VALIDATION',
     errorMessage: 'Please enter valid amount',
     prefix: '',
     keyboardType: 'numeric',
@@ -110,6 +101,11 @@ const DEFAULT_SETTING = {
 }
 
 export class LoanApplyDataStore {
+    REGEX_VALID_EMAIL = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    REGEX_VALID_NAME = /^[a-zA-Z\s]{2,}$/
+    REGEX_VALID_CONTACT_NUMBER = /^[789]\d{9}$/
+    YEARS_VALIDATION = /^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)$/ // /^[1-9]\d*(\.\d+)?$/
+    REGEX_AMOUNT = /^[0-9]*$/
 
     @observable formData
 
@@ -157,9 +153,13 @@ export class LoanApplyDataStore {
         forEach(arr, item => {
             const { key, value } = item
             const currentItem = find(this.formData, itemData => get(itemData, 'key') === key)
-            set(currentItem, 'defaultValue', value)
             set(currentItem, 'value', value)
         })
+    }
+
+    @action
+    updateFormData = (newData) => {
+        this.formData = [...newData]
     }
 
     updateSelectedBank = (bankId) => {
@@ -178,30 +178,56 @@ export class LoanApplyDataStore {
 
     @action
     updateTextValue = (value, key) => {
-        const loanItem = find(this.formData, itemData => get(itemData, 'key') === key)
-        set(loanItem, 'value', value)
-        set(loanItem, 'showErrorMessage', false)
+       const newData =  map(this.formData, itemData => {
+            if(get(itemData, 'key') === key) {
+                return {
+                    ...itemData,
+                    value,
+                    showErrorMessage: false
+                }
+            }
+            return itemData
+        })
+       this.updateFormData(newData)
     }
 
     @action
     updatePickerValue = (id, key) => {
-        const loanItem = find(this.formData, itemData => get(itemData, 'key') === key)
-        const data = get(loanItem, 'dataList')
-        const selectedItem = find(data, item => item.id === id)
-        set(loanItem, 'selectedItem', selectedItem)
+        const newData =  map(this.formData, itemData => {
+            if(get(itemData, 'key') === key) {
+                const dataList = get(itemData, 'dataList')
+                const selectedItem = find(dataList, item => item.id === id)
+                return {
+                    ...itemData,
+                    selectedItem,
+                }
+            }
+            return itemData
+        })
+       this.updateFormData(newData)
+    }
+
+    getLoanParam = () => {
+        const loanTypeObject = find(this.formData, item => item.key === LOAN_KEY_FIELD.LOAN_TYPE)
+        const bankObject = find(this.formData, item => item.key === LOAN_KEY_FIELD.BANK)
+        const durationObject = find(this.formData, item => item.key === LOAN_KEY_FIELD.DURATION)
+        const amountObject = find(this.formData, item => item.key === LOAN_KEY_FIELD.AMOUNT)
+        const loanData = {
+            loanType: get(loanTypeObject, 'selectedItem.name', ''),
+            bankname: get(bankObject, 'selectedItem.name', ''),
+            interestRate: get(loanTypeObject, 'selectedItem.interestRate', ''),
+            Duration: get(durationObject, 'value', ''),
+            Amount: get(amountObject, 'value', '')
+        }
+
+        return loanData
     }
 
     onApplyPressed = () => {
 
         const isValid = this.validateForm()
         if (isValid) {
-            const loanData  = {
-                loanType: get(this.formData, `[${LOAN_KEY_FIELD.LOAN_TYPE}].selectedItem.name`, ''),
-                bankname: get(this.formData, `[${LOAN_KEY_FIELD.BANK}].selectedItem.name`, ''),
-                interestRate: get(this.formData, `[${LOAN_KEY_FIELD.LOAN_TYPE}].selectedItem.interestRate`, ''),
-                Duration: get(this.formData, `[${LOAN_KEY_FIELD.DURATION}].value`, ''),
-                Amount: get(this.formData, `[${LOAN_KEY_FIELD.AMOUNT}].value`, '')
-            }
+            const loanData = this.getLoanParam()
             userDataStore.addLoanItem(loanData)
             ToastAndroid.show('Loan Applied Successfully!', ToastAndroid.SHORT)
         }
@@ -209,14 +235,21 @@ export class LoanApplyDataStore {
 
     validateForm = () => {
         let isValid = true
-        forEach(this.formData, item => {
+        const newData = map(this.formData, item => {
             const { validationRegex = '', value = '' } = item
-                const result = validationRegex ? validateRegex(value, validationRegex) : true
-                if (!result) {
-                    isValid = false
-                    set(item, 'showErrorMessage', true)
+            const result = validationRegex ? validateRegex(value, this[validationRegex]) : true
+            if (!result) {
+                isValid = false
+                return {
+                    ...item,
+                    showErrorMessage: true
                 }
+            }
+            return item
         })
+        if(!isValid) {
+            this.updateFormData(newData)
+        }
         return isValid
 
     }

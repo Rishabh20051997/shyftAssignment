@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 import { View, StyleSheet, Text, FlatList, TextInput, TouchableOpacity } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { observer } from 'mobx-react'
 import { get, map } from 'lodash'
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import { colors } from '../common/Colors'
 import { loanApplyDataStore } from '../stores'
@@ -15,6 +16,10 @@ interface State {
 }
 interface Props {
     route
+}
+
+interface IProps {
+    item
 }
 
 const styles = StyleSheet.create({
@@ -72,25 +77,18 @@ const styles = StyleSheet.create({
 
 })
 
-@observer
-export class ApplyLoanScreen extends Component<Props, State> {
-    constructor(props) {
-        super(props)
-        const bankId = get(props, 'route.params.bankId', '')
-        const loanTypeId = get(props, 'route.params.loanTypeId', '')
-        loanApplyDataStore.initialiseData(bankId, loanTypeId)
+export class ApplyLoanComponent extends PureComponent<IProps, State> {
 
-    }
-
-    componentWillUnmount = () => {
-        loanApplyDataStore.init()
-    }
-
-    renderHeader = () => {
-        return <View style={styles.headerContainer}>
-            <Text style={styles.headingText}>{'Apply For Loan'}</Text>
-        </View>
-    }
+    // shouldComponentUpdate(nextProps: Readonly<IProps>): boolean {
+    //     const { item: { value, selectedItem = {} } } = nextProps
+    //     const { item: { value: currentValue, selectedItem: currentSelectedValue = {} } } = this.props
+    //     console.log('\n\n\n^^^^^^^shouldComponentUpdate called : ', value, currentValue)
+    //     if (currentValue !== value ||
+    //         JSON.parse(JSON.stringify(currentSelectedValue)) !== JSON.parse(JSON.stringify(selectedItem))) {
+    //         return true
+    //     }
+    //     return false
+    // }
 
     onPickerChanged = (id, key) => {
         loanApplyDataStore.updatePickerValue(id, key)
@@ -117,8 +115,9 @@ export class ApplyLoanScreen extends Component<Props, State> {
         loanApplyDataStore.updateTextValue(value, key)
     }
 
+
     renderTextBox = (item) => {
-        const { key, value, placeholder, defaultValue, keyboardType, prefix, errorMessage, showErrorMessage } = item
+        const { key, value, placeholder, keyboardType, prefix, errorMessage, showErrorMessage } = item
         return <><View style={styles.textBoxContainer}>
             <View style={styles.textBoxInnerContainer}>
                 {prefix ?
@@ -130,6 +129,9 @@ export class ApplyLoanScreen extends Component<Props, State> {
                     keyboardType={keyboardType || 'default'}
                     style={styles.textBoxStyle}
                     onChangeText={(textValue) => this.onTextChange(textValue, key)}
+                    autoFocus={false}
+
+                    removeClippedSubviews={false}
                 />
             </View>
         </View>
@@ -138,8 +140,11 @@ export class ApplyLoanScreen extends Component<Props, State> {
 
     }
 
-    renderCardItem = ({ item }) => {
+
+    render = () => {
+        const { item } = this.props
         const { type } = item
+        // console.log('\n\n\n 1 level called : ', item)
         switch (type) {
             case FIELD_TYPE.PICKER:
                 return this.renderPicker(item)
@@ -150,16 +155,40 @@ export class ApplyLoanScreen extends Component<Props, State> {
             default:
                 return null
         }
+    }
+}
 
+@observer
+export class ApplyLoanScreen extends Component<Props, State> {
+    constructor(props) {
+        super(props)
+        const bankId = get(props, 'route.params.bankId', '')
+        const loanTypeId = get(props, 'route.params.loanTypeId', '')
+        loanApplyDataStore.initialiseData(bankId, loanTypeId)
+
+    }
+
+    componentWillUnmount = () => {
+        loanApplyDataStore.init()
+    }
+
+    renderHeader = () => {
+        return <View style={styles.headerContainer}>
+            <Text style={styles.headingText}>{'Apply For Loan'}</Text>
+        </View>
+    }
+
+    renderCardItem = ({ item }) => {
+        return <ApplyLoanComponent item={item} />
     }
 
     renderContent = () => {
         const { formData } = loanApplyDataStore
-        console.log('renderContent : ', formData)
+        // console.log('\n\n\n$$$$$ renderContent : ', formData[2])
         return <FlatList
             data={formData}
             renderItem={this.renderCardItem}
-            keyExtractor={(item, index) => item + index}
+            keyExtractor={(item, index) => index + ''}
             ItemSeparatorComponent={() => <View style={styles.itemSepratorView} />}
             style={styles.mainContentContainer}
         />
@@ -184,7 +213,11 @@ export class ApplyLoanScreen extends Component<Props, State> {
     render() {
         return <View style={styles.mainView}>
             {this.renderHeader()}
-            {this.renderContent()}
+            <KeyboardAwareScrollView
+                keyboardShouldPersistTaps={'handled'}
+            >
+                {this.renderContent()}
+            </KeyboardAwareScrollView>
             {this.renderSaveButton()}
         </View>
     }

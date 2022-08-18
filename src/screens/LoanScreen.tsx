@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react'
 import React, { Component } from 'react'
 import { View, StyleSheet, Text, FlatList } from 'react-native'
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen'
@@ -32,29 +33,38 @@ mainContentContainer: {
     margin: 10,
 },
 cardItemConatiner: {
-  borderWidth: 1,
+  borderWidth: 0.1,
   alignItems: 'center',
   justifyContent: 'center',
-  // height: hp('8%'),
   borderColor: colors.lightGray,
-  borderRadius: 5,
   width: '45%',
-  marginHorizontal: '2.5%'
+  marginHorizontal: '2.5%',
+  paddingVertical: 20,
+  borderRadius: 10,
+  shadowColor: colors.black,
+  shadowOffset: {
+    width: 0,
+    height: 1
+  },
+  shadowOpacity: 0.5,
+  shadowRadius: 2,
+  elevation: 2
 },
 headingtext: {
-  fontSize: hp('2.5%'),
+  fontSize: hp('2.2%'),
   color: colors.primaryColor
 },
 secondarytext: {
-  fontSize: hp('2%'),
+  fontSize: hp('1.8%'),
   color: colors.black
 },
 tertiarytext: {
-  fontSize: hp('2%'),
-  color: colors.textTertiary
+  fontSize: hp('1.5%'),
+  color: colors.textSecondary
 }
 })
 
+@observer
 export class LoanScreen extends Component<Props, State> {
   constructor(props) {
     super(props)

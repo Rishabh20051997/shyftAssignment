@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, Text, Image, SectionList, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Text, Image, SectionList, TouchableOpacity, Alert } from 'react-native'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'
 import { colors } from '../common/Colors'
 import { icons } from '../common/Icons'
 import { navigateSimple } from '../services/NavigationServiceV1'
 import { homeDataStore, userDataStore } from '../stores'
+import { validateRegex } from '../utils/ValidationUtils'
 
 
 interface State {
@@ -79,6 +80,10 @@ const styles = StyleSheet.create({
 export class HomeScreen extends Component<Props, State> {
     constructor(props) {
         super(props)
+    }
+
+    componentDidMount = () => {
+    //    alert(validateRegex('', '')) 
     }
 
     renderProfilePhoto = () => {
